@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel - KAI Arena{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-4xl font-bold">Admin Panel</h1>
+    <p class="text-gray-400">System management and analytics</p>
+</div>
+
+<!-- Statistics -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="card p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <div class="text-gray-400 text-sm mb-1">Total Users</div>
+                <div class="text-3xl font-bold">{{ stats.total_users }}</div>
+            </div>
+            <div class="text-4xl text-blue-400"><i class="fas fa-users"></i></div>
+        </div>
+    </div>
+    
+    <div class="card p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <div class="text-gray-400 text-sm mb-1">Total Tournaments</div>
+                <div class="text-3xl font-bold">{{ stats.total_tournaments }}</div>
+            </div>
+            <div class="text-4xl text-purple-400"><i class="fas fa-trophy"></i></div>
+        </div>
+    </div>
+    
+    <div class="card p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <div class="text-gray-400 text-sm mb-1">Active Now</div>
+                <div class="text-3xl font-bold">{{ stats.active_tournaments }}</div>
+            </div>
+            <div class="text-4xl text-green-400"><i class="fas fa-play-circle"></i></div>
+        </div>
+    </div>
+    
+    <div class="card p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <div class="text-gray-400 text-sm mb-1">Pending Approvals</div>
+                <div class="text-3xl font-bold">{{ stats.pending_registrations }}</div>
+            </div>
+            <div class="text-4xl text-orange-400"><i class="fas fa-hourglass-half"></i></div>
+        </div>
+    </div>
+</div>
+
+<!-- Management Sections -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Users Management -->
+    <div class="card p-6">
+        <h2 class="text-2xl font-bold mb-4"><i class="fas fa-users text-blue-400 mr-2"></i> User Management</h2>
+        <p class="text-gray-400 mb-4">Manage user accounts and roles</p>
+        <a href="{{ url_for('admin_users') }}" class="block w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition text-center">
+            <i class="fas fa-cog mr-2"></i> Manage Users
+        </a>
+    </div>
+    
+    <!-- Registrations -->
+    <div class="card p-6">
+        <h2 class="text-2xl font-bold mb-4"><i class="fas fa-clipboard-check text-orange-400 mr-2"></i> Approvals</h2>
+        <p class="text-gray-400 mb-4">{{ stats.pending_registrations }} pending approvals</p>
+        <a href="{{ url_for('admin_registrations') }}" class="block w-full px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg transition text-center">
+            <i class="fas fa-check-circle mr-2"></i> Review Registrations
+        </a>
+    </div>
+    
+    <!-- Teams -->
+    <div class="card p-6">
+        <h2 class="text-2xl font-bold mb-4"><i class="fas fa-users-cog text-green-400 mr-2"></i> Team Verification</h2>
+        <p class="text-gray-400 mb-4">Verify and manage teams</p>
+        <a href="{{ url_for('admin_teams') }}" class="block w-full px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition text-center">
+            <i class="fas fa-check-double mr-2"></i> Verify Teams
+        </a>
+    </div>
+    
+    <!-- Announcements -->
+    <div class="card p-6">
+        <h2 class="text-2xl font-bold mb-4"><i class="fas fa-bullhorn text-pink-400 mr-2"></i> Announcements</h2>
+        <p class="text-gray-400 mb-4">Create and manage announcements</p>
+        <a href="{{ url_for('admin_announcements') }}" class="block w-full px-6 py-3 bg-pink-600 hover:bg-pink-700 text-white font-bold rounded-lg transition text-center">
+            <i class="fas fa-pencil-alt mr-2"></i> Manage Announcements
+        </a>
+    </div>
+</div>
+{% endblock %}

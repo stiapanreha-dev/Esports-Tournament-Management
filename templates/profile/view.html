@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.username }} - Profile{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <div class="flex items-center justify-between">
+        <h1 class="text-4xl font-bold">{{ user.username }}</h1>
+        {% if session.get('user_id') == user.id %}
+            <a href="{{ url_for('edit_profile') }}" class="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition">
+                <i class="fas fa-edit mr-2"></i> Edit Profile
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2">
+        <!-- Player Info -->
+        <div class="card p-6 mb-6">
+            <h2 class="text-2xl font-bold mb-4"><i class="fas fa-user text-purple-400 mr-2"></i> Player Information</h2>
+            
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                    <div class="text-gray-400 text-sm mb-1">Username</div>
+                    <div class="text-lg font-bold">{{ user.username }}</div>
+                </div>
+                <div>
+                    <div class="text-gray-400 text-sm mb-1">In-Game Name</div>
+                    <div class="text-lg font-bold">{{ user.ign }}</div>
+                </div>
+                <div>
+                    <div class="text-gray-400 text-sm mb-1">Full Name</div>
+                    <div class="text-lg font-bold">{{ user.full_name or 'Not Set' }}</div>
+                </div>
+                <div>
+                    <div class="text-gray-400 text-sm mb-1">Role</div>
+                    <div class="text-lg font-bold">{{ user.role|title }}</div>
+                </div>
+            </div>
+            
+            {% if user.bio %}
+                <div>
+                    <div class="text-gray-400 text-sm mb-1">Bio</div>
+                    <p class="text-gray-300">{{ user.bio }}</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Stats -->
+        <div class="card p-6">
+            <h2 class="text-2xl font-bold mb-4"><i class="fas fa-chart-line text-purple-400 mr-2"></i> Statistics</h2>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="text-center p-4 bg-gray-700 rounded-lg">
+                    <div class="text-2xl font-bold text-purple-400">{{ stats.tournaments_played }}</div>
+                    <div class="text-xs text-gray-400">Tournaments</div>
+                </div>
+                <div class="text-center p-4 bg-gray-700 rounded-lg">
+                    <div class="text-2xl font-bold text-green-400">{{ stats.tournaments_won }}</div>
+                    <div class="text-xs text-gray-400">Won</div>
+                </div>
+                <div class="text-center p-4 bg-gray-700 rounded-lg">
+                    <div class="text-2xl font-bold text-blue-400">{{ stats.matches_played }}</div>
+                    <div class="text-xs text-gray-400">Matches</div>
+                </div>
+                <div class="text-center p-4 bg-gray-700 rounded-lg">
+                    <div class="text-2xl font-bold text-pink-400">{{ stats.win_rate }}%</div>
+                    <div class="text-xs text-gray-400">Win Rate</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Avatar & Info -->
+    <div>
+        {% if user.avatar %}
+            <div class="card p-6 mb-6">
+                <img src="{{ url_for('uploaded_file', filename=user.avatar) }}" alt="{{ user.username }}" class="w-full h-auto rounded-lg">
+            </div>
+        {% else %}
+            <div class="card p-6 mb-6">
+                <div class="w-full aspect-square bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-user text-6xl text-white opacity-50"></i>
+                </div>
+            </div>
+        {% endif %}
+        
+        <!-- Activity -->
+        <div class="card p-6">
+            <h3 class="text-lg font-bold mb-4">Activity</h3>
+            <div class="space-y-2 text-sm text-gray-400">
+                <div>
+                    <div class="text-gray-300 font-semibold mb-1">Member Since</div>
+                    <div>{{ user.created_at.strftime('%d %b %Y') }}</div>
+                </div>
+                <div>
+                    <div class="text-gray-300 font-semibold mb-1">Last Login</div>
+                    <div>{{ user.last_login.strftime('%d %b %Y, %H:%M') if user.last_login else 'Never' }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Review Registrations - Admin Panel{% endblock %}
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-4xl font-bold">Tournament Registrations</h1>
+</div>
+
+<div class="card p-6">
+    {% if registrations %}
+        <div class="space-y-4">
+            {% for reg in registrations %}
+                <div class="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
+                    <div>
+                        <div class="font-semibold">{{ reg.tournament_reg.name }}</div>
+                        <div class="text-xs text-gray-400">
+                            {% if reg.team %}
+                                {{ reg.team.name }} (Team)
+                            {% else %}
+                                {{ reg.player.username }} (Player)
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <a href="{{ url_for('handle_registration', reg_id=reg.id, action='approve') }}" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-semibold transition">
+                            Approve
+                        </a>
+                        <a href="{{ url_for('handle_registration', reg_id=reg.id, action='reject') }}" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-semibold transition">
+                            Reject
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-gray-400 text-center py-8">No pending registrations</p>
+    {% endif %}
+</div>
+{% endblock %}

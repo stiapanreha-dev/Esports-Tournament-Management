@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}{{ team.name }} - KAI Arena{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <a href="{{ url_for('teams') }}" class="text-purple-400 hover:text-purple-300 mb-4 inline-flex items-center">
+        <i class="fas fa-arrow-left mr-2"></i> Back to Teams
+    </a>
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-4xl font-bold">{{ team.name }}</h1>
+            <p class="text-gray-400">{{ team.tag }}</p>
+        </div>
+        {% if session.get('user_id') == team.created_by %}
+            <a href="{{ url_for('team_manage', team_id=team.id) }}" class="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition">
+                <i class="fas fa-edit mr-2"></i> Manage
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2">
+        <!-- Team Info -->
+        <div class="card p-6 mb-6">
+            <h2 class="text-2xl font-bold mb-4"><i class="fas fa-info-circle text-purple-400 mr-2"></i> About</h2>
+            
+            <div class="mb-4">
+                <div class="text-gray-400 text-sm mb-1">Game</div>
+                <div class="text-lg font-bold">{{ team.game }}</div>
+            </div>
+            
+            {% if team.description %}
+                <div>
+                    <div class="text-gray-400 text-sm mb-1">Description</div>
+                    <p class="text-gray-300">{{ team.description }}</p>
+                </div>
+            {% endif %}
+            
+            <div class="mt-4 flex gap-4">
+                {% if team.is_verified %}
+                    <span class="badge badge-success"><i class="fas fa-check-circle mr-1"></i> Verified</span>
+                {% else %}
+                    <span class="badge badge-warning"><i class="fas fa-hourglass-half mr-1"></i> Pending Verification</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div>
+        <!-- Logo -->
+        {% if team.logo %}
+            <div class="card p-6 mb-6">
+                <img src="{{ url_for('uploaded_file', filename=team.logo) }}" alt="{{ team.name }}" class="w-full h-auto rounded-lg">
+            </div>
+        {% endif %}
+        
+        <!-- Members -->
+        <div class="card p-6">
+            <h3 class="text-lg font-bold mb-4"><i class="fas fa-users text-purple-400 mr-2"></i> Members ({{ members|length }})</h3>
+            <div class="space-y-2">
+                {% for member in members %}
+                    <div class="flex items-center justify-between p-3 bg-gray-700 rounded-lg">
+                        <div>
+                            <div class="font-semibold">{{ member.user.username }}</div>
+                            <div class="text-xs text-gray-400">{{ member.role|upper }}</div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

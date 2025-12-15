@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Tournaments - KAI Arena{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold mb-2">Tournaments</h1>
+    <p class="text-gray-400">Browse upcoming and ongoing tournaments at KAI Arena</p>
+</div>
+
+<!-- Filters: Game / Status / Type (styled) -->
+<form method="GET" class="bg-gray-800 rounded-xl p-4 mb-6 shadow-md">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+        <div class="md:col-span-4">
+            <label class="block text-sm font-semibold text-gray-300 mb-2">Game</label>
+            <select name="game" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-200">
+                <option value="all">All Games</option>
+                {% for game in games %}
+                <option value="{{ game }}" {% if request.args.get('game') == game %}selected{% endif %}>{{ game }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="md:col-span-4">
+            <label class="block text-sm font-semibold text-gray-300 mb-2">Status</label>
+            <select name="status" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-200">
+                <option value="all">All Status</option>
+                <option value="upcoming" {% if request.args.get('status') == 'upcoming' %}selected{% endif %}>Upcoming</option>
+                <option value="ongoing" {% if request.args.get('status') == 'ongoing' %}selected{% endif %}>Ongoing</option>
+                <option value="completed" {% if request.args.get('status') == 'completed' %}selected{% endif %}>Completed</option>
+            </select>
+        </div>
+
+        <div class="md:col-span-3">
+            <label class="block text-sm font-semibold text-gray-300 mb-2">Type</label>
+            <select name="type" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-200">
+                <option value="all">All Types</option>
+                <option value="solo" {% if request.args.get('type') == 'solo' %}selected{% endif %}>Solo</option>
+                <option value="team" {% if request.args.get('type') == 'team' %}selected{% endif %}>Team</option>
+            </select>
+        </div>
+
+        <div class="md:col-span-1 flex md:justify-end">
+            <div class="w-full">
+                <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-3 rounded-lg shadow hover:opacity-95 transition">
+                    <i class="fas fa-filter mr-2"></i> Filter
+                </button>
+                <a href="{{ url_for('tournaments') }}" class="mt-2 block text-center text-sm text-gray-400 hover:text-gray-200">Reset</a>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Tournament Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for tournament in tournaments %}
+    <article class="bg-gray-800 rounded-xl overflow-hidden shadow hover:shadow-lg transition">
+        <div class="flex flex-col sm:flex-row">
+            <div class="sm:w-40 h-40 bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center text-white text-2xl font-bold">
+                {% if tournament.thumbnail %}
+                    <img src="{{ url_for('uploaded_file', filename=tournament.thumbnail) }}" alt="{{ tournament.name }}" class="w-full h-full object-cover">
+                {% else %}
+                    <div class="text-center px-2">
+                        <div class="text-xl"><i class="fas fa-gamepad"></i></div>
+                        <div class="text-sm mt-1">{{ tournament.game }}</div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="p-4 flex-1 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-start justify-between">
+                        <h3 class="text-lg font-bold">{{ tournament.name }}</h3>
+                        <div class="text-right">
+                            <div class="text-yellow-400 font-bold">${{ tournament.prize_pool }}</div>
+                            <div class="text-xs text-gray-400">Prize Pool</div>
+                        </div>
+                    </div>
+
+                    <p class="text-gray-400 text-sm mt-2 line-clamp-3">{{ tournament.description or '' }}</p>
+
+                    <div class="mt-3 flex flex-wrap gap-2 items-center">
+                        <span class="px-2 py-1 text-xs rounded-full bg-gray-900 text-gray-300">{{ tournament.game }}</span>
+                        <span class="px-2 py-1 text-xs rounded-full {% if tournament.status == 'ongoing' %}bg-green-700{% elif tournament.status == 'upcoming' %}bg-blue-700{% else %}bg-yellow-700{% endif %} text-white">{{ tournament.status|title }}</span>
+                        <span class="px-2 py-1 text-xs rounded-full bg-gray-900 text-gray-300">{{ tournament.get_registered_count() }} / {{ tournament.max_teams }} teams</span>
+                    </div>
+                </div>
+
+                <div class="mt-4 flex items-center justify-between">
+                    <div class="text-xs text-gray-400">Starts: {{ tournament.start_date.strftime('%d %b %Y') }}</div>
+                    <div class="flex items-center gap-3">
+                        <a href="{{ url_for('tournament_detail', tournament_id=tournament.id) }}" class="btn-outline px-4 py-2 rounded-lg">View</a>
+                        {% if tournament.status == 'upcoming' %}
+                        <a href="{{ url_for('tournament_detail', tournament_id=tournament.id) }}" class="btn-primary px-4 py-2 rounded-lg">Register</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </article>
+    {% endfor %}
+</div>
+
+{% if tournaments|length == 0 %}
+<div class="text-center py-16 bg-gray-800 rounded-xl">
+    <i class="fas fa-trophy text-6xl text-gray-600 mb-4"></i>
+    <h3 class="text-2xl font-bold mb-2">No Tournaments Found</h3>
+    <p class="text-gray-400 mb-6">Try adjusting your filters or check back later</p>
+    <a href="{{ url_for('tournaments') }}" class="btn-primary px-6 py-3 rounded-lg font-semibold">
+        <i class="fas fa-sync mr-2"></i> Clear Filters
+    </a>
+</div>
+{% endif %}
+
+<!-- Organizer CTA -->
+{% if session.get('role') == 'organizer' %}
+<div class="mt-8 text-center">
+    <a href="{{ url_for('create_tournament') }}" class="inline-flex items-center justify-center px-8 py-3 text-lg font-semibold rounded-lg bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 transition">
+        <i class="fas fa-plus mr-2"></i> Create Tournament
+    </a>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Initialize countdowns
+document.addEventListener('DOMContentLoaded', function() {
+    const countdowns = document.querySelectorAll('[data-countdown]');
+    countdowns.forEach(element => {
+        const endTime = new Date(element.dataset.countdown).getTime();
+        
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = endTime - now;
+            
+            if (distance < 0) {
+                element.innerHTML = 'Registration Closed';
+                return;
+            }
+            
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            
+            element.innerHTML = `${days}d ${hours}h ${minutes}m`;
+        }
+        
+        updateCountdown();
+        setInterval(updateCountdown, 60000); // Update every minute
+    });
+});
+</script>
+{% endblock %}

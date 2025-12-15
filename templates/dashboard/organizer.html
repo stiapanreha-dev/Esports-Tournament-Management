@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Organizer Dashboard - KAI Arena{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-4xl font-bold">Organizer Dashboard</h1>
+    <p class="text-gray-400">Manage tournaments and approvals</p>
+</div>
+
+<!-- Stats -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="card p-6 text-center">
+        <div class="text-4xl font-bold text-purple-400 mb-2">{{ tournaments|length }}</div>
+        <div class="text-gray-400">Tournaments Created</div>
+    </div>
+    <div class="card p-6 text-center">
+        <div class="text-4xl font-bold text-orange-400 mb-2">{{ pending_registrations }}</div>
+        <div class="text-gray-400">Pending Approvals</div>
+    </div>
+    <div class="card p-6 text-center">
+        <div class="text-4xl font-bold text-blue-400 mb-2">0</div>
+        <div class="text-gray-400">Total Participants</div>
+    </div>
+    <div class="card p-6 text-center">
+        <div class="text-4xl font-bold text-green-400 mb-2">0</div>
+        <div class="text-gray-400">Total Prize Pool</div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- My Tournaments -->
+    <div class="card p-6">
+        <h2 class="text-2xl font-bold mb-4"><i class="fas fa-trophy text-purple-400 mr-2"></i> My Tournaments</h2>
+        {% if tournaments %}
+            <div class="space-y-3">
+                {% for tournament in tournaments %}
+                    <div class="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
+                        <div>
+                            <div class="font-semibold">{{ tournament.name }}</div>
+                            <div class="text-xs text-gray-400">{{ tournament.game }} - {{ tournament.get_registered_count() }}/{{ tournament.max_teams }} teams</div>
+                        </div>
+                        <a href="{{ url_for('tournament_detail', tournament_id=tournament.id) }}" class="text-purple-400 hover:text-purple-300">
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-gray-400 text-center py-8">No tournaments created yet</p>
+        {% endif %}
+        <a href="{{ url_for('create_tournament') }}" class="inline-flex items-center mt-4 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition">
+            <i class="fas fa-plus mr-2"></i> Create Tournament
+        </a>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="card p-6">
+        <h2 class="text-2xl font-bold mb-4"><i class="fas fa-lightning-bolt text-yellow-400 mr-2"></i> Management</h2>
+        <div class="space-y-3">
+            <a href="{{ url_for('admin_registrations') }}" class="flex items-center justify-between p-4 bg-gray-700 hover:bg-orange-600 rounded-lg transition">
+                <div class="font-semibold">Pending Registrations</div>
+                <span class="text-lg font-bold">{{ pending_registrations }}</span>
+            </a>
+            <a href="{{ url_for('admin_users') }}" class="flex items-center justify-between p-4 bg-gray-700 hover:bg-blue-600 rounded-lg transition">
+                <div class="font-semibold">Manage Users</div>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+            <a href="{{ url_for('admin_teams') }}" class="flex items-center justify-between p-4 bg-gray-700 hover:bg-green-600 rounded-lg transition">
+                <div class="font-semibold">Verify Teams</div>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+            <a href="{{ url_for('admin_announcements') }}" class="flex items-center justify-between p-4 bg-gray-700 hover:bg-pink-600 rounded-lg transition">
+                <div class="font-semibold">Make Announcements</div>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

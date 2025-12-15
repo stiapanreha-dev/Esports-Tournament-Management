@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Player Dashboard - KAI Arena{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-4xl font-bold">Player Dashboard</h1>
+    <p class="text-gray-400">Welcome back, {{ user.username }}!</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="card p-6 text-center">
+        <div class="text-4xl font-bold text-purple-400 mb-2">{{ registrations|length }}</div>
+        <div class="text-gray-400">Tournaments Joined</div>
+    </div>
+    <div class="card p-6 text-center">
+        <div class="text-4xl font-bold text-blue-400 mb-2">{{ team_memberships|length }}</div>
+        <div class="text-gray-400">Teams Joined</div>
+    </div>
+    <div class="card p-6 text-center">
+        <div class="text-4xl font-bold text-green-400 mb-2">0</div>
+        <div class="text-gray-400">Matches Won</div>
+    </div>
+    <div class="card p-6 text-center">
+        <div class="text-4xl font-bold text-pink-400 mb-2">0%</div>
+        <div class="text-gray-400">Win Rate</div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Tournaments -->
+    <div class="card p-6">
+        <h2 class="text-2xl font-bold mb-4"><i class="fas fa-trophy text-purple-400 mr-2"></i> My Tournaments</h2>
+        {% if registrations %}
+            <div class="space-y-3">
+                {% for reg in registrations %}
+                    <div class="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
+                        <div>
+                            <div class="font-semibold">{{ reg.tournament_reg.name }}</div>
+                            <div class="text-xs text-gray-400">{{ reg.tournament_reg.game }} - Status: {{ reg.status }}</div>
+                        </div>
+                        <a href="{{ url_for('tournament_detail', tournament_id=reg.tournament_reg.id) }}" class="text-purple-400 hover:text-purple-300">
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-gray-400 text-center py-8">You haven't joined any tournaments yet</p>
+            <a href="{{ url_for('tournaments') }}" class="block text-center mt-4 text-purple-400 hover:text-purple-300">
+                Browse Tournaments <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+        {% endif %}
+    </div>
+    
+    <!-- Teams -->
+    <div class="card p-6">
+        <h2 class="text-2xl font-bold mb-4"><i class="fas fa-users text-blue-400 mr-2"></i> My Teams</h2>
+        {% if team_memberships %}
+            <div class="space-y-3">
+                {% for membership in team_memberships %}
+                    <div class="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
+                        <div>
+                            <div class="font-semibold">{{ membership.team.name }}</div>
+                            <div class="text-xs text-gray-400">{{ membership.role|upper }} - {{ membership.team.game }}</div>
+                        </div>
+                        <a href="{{ url_for('team_view', team_id=membership.team.id) }}" class="text-blue-400 hover:text-blue-300">
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-gray-400 text-center py-8">You aren't in any teams yet</p>
+            <a href="{{ url_for('create_team') }}" class="block text-center mt-4 text-blue-400 hover:text-blue-300">
+                Create a Team <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card p-6">
+    <h2 class="text-2xl font-bold mb-4"><i class="fas fa-lightning-bolt text-yellow-400 mr-2"></i> Quick Actions</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <a href="{{ url_for('tournaments') }}" class="p-4 bg-gray-700 hover:bg-purple-600 rounded-lg text-center transition">
+            <div class="text-2xl mb-2"><i class="fas fa-search"></i></div>
+            <div class="font-semibold">Browse Tournaments</div>
+        </a>
+        <a href="{{ url_for('create_team') }}" class="p-4 bg-gray-700 hover:bg-blue-600 rounded-lg text-center transition">
+            <div class="text-2xl mb-2"><i class="fas fa-plus-circle"></i></div>
+            <div class="font-semibold">Create Team</div>
+        </a>
+        <a href="{{ url_for('profile') }}" class="p-4 bg-gray-700 hover:bg-green-600 rounded-lg text-center transition">
+            <div class="text-2xl mb-2"><i class="fas fa-user-edit"></i></div>
+            <div class="font-semibold">Edit Profile</div>
+        </a>
+    </div>
+</div>
+{% endblock %}

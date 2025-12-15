@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Manage Teams - Admin Panel{% endblock %}
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-4xl font-bold">Team Management</h1>
+</div>
+
+<div class="card p-6">
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-700">
+                <tr>
+                    <th class="px-4 py-3 text-left">Team Name</th>
+                    <th class="px-4 py-3 text-left">Game</th>
+                    <th class="px-4 py-3 text-left">Leader</th>
+                    <th class="px-4 py-3 text-left">Status</th>
+                    <th class="px-4 py-3 text-center">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for team in teams %}
+                    <tr class="border-b border-gray-700 hover:bg-gray-700">
+                        <td class="px-4 py-3">{{ team.name }}</td>
+                        <td class="px-4 py-3">{{ team.game }}</td>
+                        <td class="px-4 py-3">{{ team.creator.username }}</td>
+                        <td class="px-4 py-3">
+                            <span class="badge {% if team.is_verified %}badge-success{% else %}badge-warning{% endif %}">
+                                {{ 'Verified' if team.is_verified else 'Pending' }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <a href="{{ url_for('toggle_team_verify', team_id=team.id) }}" class="px-3 py-1 bg-{% if team.is_verified %}orange-600{% else %}green-600{% endif %} hover:opacity-80 rounded-lg text-sm transition">
+                                {{ 'Unverify' if team.is_verified else 'Verify' }}
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

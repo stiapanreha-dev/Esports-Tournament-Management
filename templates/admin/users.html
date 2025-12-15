@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Manage Users - Admin Panel{% endblock %}
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-4xl font-bold">User Management</h1>
+</div>
+
+<div class="card p-6">
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-700">
+                <tr>
+                    <th class="px-4 py-3 text-left">Username</th>
+                    <th class="px-4 py-3 text-left">Email</th>
+                    <th class="px-4 py-3 text-left">Role</th>
+                    <th class="px-4 py-3 text-left">Status</th>
+                    <th class="px-4 py-3 text-center">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr class="border-b border-gray-700 hover:bg-gray-700">
+                        <td class="px-4 py-3">{{ user.username }}</td>
+                        <td class="px-4 py-3">{{ user.email }}</td>
+                        <td class="px-4 py-3"><span class="badge badge-info">{{ user.role|title }}</span></td>
+                        <td class="px-4 py-3">
+                            <span class="badge {% if user.is_active %}badge-success{% else %}badge-danger{% endif %}">
+                                {{ 'Active' if user.is_active else 'Inactive' }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <a href="{{ url_for('toggle_user', user_id=user.id) }}" class="px-3 py-1 bg-{% if user.is_active %}red-600{% else %}green-600{% endif %} hover:opacity-80 rounded-lg text-sm transition">
+                                {{ 'Deactivate' if user.is_active else 'Activate' }}
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

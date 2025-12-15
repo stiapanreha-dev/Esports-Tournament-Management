@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile - KAI Arena{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-4xl font-bold mb-2">Edit Profile</h1>
+    <p class="text-gray-400">Update your account information</p>
+</div>
+
+<div class="max-w-2xl">
+    <div class="card p-8">
+        <form method="POST" action="{{ url_for('edit_profile') }}" enctype="multipart/form-data">
+            <div class="mb-6">
+                <label class="block text-sm font-semibold mb-2">Username</label>
+                <input type="text" 
+                       value="{{ user.username }}" 
+                       class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-400 cursor-not-allowed"
+                       disabled>
+                <p class="text-xs text-gray-500 mt-1">Username cannot be changed</p>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-semibold mb-2">In-Game Name (IGN) *</label>
+                <input type="text" 
+                       name="ign" 
+                       value="{{ user.ign }}" 
+                       class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 transition"
+                       required>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Full Name</label>
+                    <input type="text" 
+                           name="full_name" 
+                           value="{{ user.full_name or '' }}" 
+                           class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 transition"
+                           placeholder="Your full name">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Email</label>
+                    <input type="email" 
+                           value="{{ user.email }}" 
+                           class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-400 cursor-not-allowed"
+                           disabled>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-semibold mb-2">Bio</label>
+                <textarea name="bio" 
+                          class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 transition"
+                          placeholder="Tell us about yourself"
+                          rows="4">{{ user.bio or '' }}</textarea>
+            </div>
+            
+            <div class="mb-8">
+                <label class="block text-sm font-semibold mb-2">Profile Avatar</label>
+                <div class="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center cursor-pointer hover:border-purple-500 transition">
+                          <input type="file" 
+                              name="avatar" 
+                              id="avatar" 
+                              class="sr-only" 
+                              accept="image/*">
+                    <label for="avatar" class="cursor-pointer">
+                        <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2 block"></i>
+                        <p class="text-gray-300">Click to upload or drag and drop</p>
+                        <p class="text-xs text-gray-500">PNG, JPG, GIF (Max 2MB)</p>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="flex gap-4">
+                <button type="submit" class="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-3 rounded-lg hover:opacity-90 transition">
+                    <i class="fas fa-save mr-2"></i> Save Changes
+                </button>
+                <a href="{{ url_for('profile') }}" class="flex-1 border-2 border-purple-600 text-purple-400 text-center font-bold py-3 rounded-lg hover:bg-purple-600 hover:text-white transition">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

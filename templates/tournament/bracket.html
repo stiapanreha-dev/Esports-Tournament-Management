@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}{{ tournament.name }} - Bracket - KAI Arena{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <a href="{{ url_for('tournament_detail', tournament_id=tournament.id) }}" class="text-purple-400 hover:text-purple-300 mb-4 inline-flex items-center">
+        <i class="fas fa-arrow-left mr-2"></i> Back to Tournament
+    </a>
+    <h1 class="text-4xl font-bold">{{ tournament.name }} - Bracket</h1>
+</div>
+
+<div class="card p-6">
+    {% if rounds %}
+        <div class="overflow-x-auto pb-4">
+            <div class="flex gap-8 min-w-max">
+                {% for round_num, matches in rounds.items() %}
+                    <div class="flex flex-col gap-4">
+                        <h3 class="font-bold text-center text-purple-400 mb-4">Round {{ round_num }}</h3>
+                        
+                        {% for match in matches %}
+                            <div class="card p-4 min-w-64 border-l-4 border-purple-500">
+                                <!-- Match Details -->
+                                <div class="text-center mb-3">
+                                    <div class="text-xs text-gray-400 mb-2">Match {{ match.match_number }}</div>
+                                    {% if match.scheduled_time %}
+                                        <div class="text-xs text-gray-400">{{ match.scheduled_time.strftime('%H:%M') }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Team 1 / Player 1 -->
+                                <div class="bg-gray-700 rounded p-3 mb-3">
+                                    {% if tournament.max_players == 1 and match.player1 %}
+                                        <div class="font-semibold">{{ match.player1.username }}</div>
+                                        <div class="text-xs text-gray-400">{{ match.player1.ign }}</div>
+                                    {% elif tournament.max_players > 1 and match.team1 %}
+                                        <div class="font-semibold">{{ match.team1.name }}</div>
+                                        <div class="text-xs text-gray-400">{{ match.team1.tag }}</div>
+                                    {% else %}
+                                        <div class="text-gray-500 text-sm">TBD</div>
+                                    {% endif %}
+                                    {% if match.result and tournament.max_players > 1 %}
+                                        <div class="text-lg font-bold text-green-400 mt-1">{{ match.result.team1_score }}</div>
+                                    {% elif match.result %}
+                                        <div class="text-lg font-bold text-green-400 mt-1">{{ match.result.player1_score }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- VS -->
+                                <div class="text-center text-xs text-gray-500 mb-3">VS</div>
+                                
+                                <!-- Team 2 / Player 2 -->
+                                <div class="bg-gray-700 rounded p-3 mb-3">
+                                    {% if tournament.max_players == 1 and match.player2 %}
+                                        <div class="font-semibold">{{ match.player2.username }}</div>
+                                        <div class="text-xs text-gray-400">{{ match.player2.ign }}</div>
+                                    {% elif tournament.max_players > 1 and match.team2 %}
+                                        <div class="font-semibold">{{ match.team2.name }}</div>
+                                        <div class="text-xs text-gray-400">{{ match.team2.tag }}</div>
+                                    {% else %}
+                                        <div class="text-gray-500 text-sm">TBD</div>
+                                    {% endif %}
+                                    {% if match.result and tournament.max_players > 1 %}
+                                        <div class="text-lg font-bold text-green-400 mt-1">{{ match.result.team2_score }}</div>
+                                    {% elif match.result %}
+                                        <div class="text-lg font-bold text-green-400 mt-1">{{ match.result.player2_score }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Status -->
+                                <div class="text-center">
+                                    <span class="badge badge-{% if match.status == 'scheduled' %}info{% elif match.status == 'live' %}warning{% else %}success{% endif %}">
+                                        {{ match.status.title() }}
+                                    </span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <p class="text-gray-400 text-center py-8">No bracket generated yet</p>
+    {% endif %}
+</div>
+{% endblock %}

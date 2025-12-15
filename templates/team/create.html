@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Create Team - KAI Arena{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-4xl font-bold mb-2">Create Team</h1>
+    <p class="text-gray-400">Form a team to compete together</p>
+</div>
+
+<div class="max-w-2xl">
+    <div class="card p-8">
+        <form method="POST" action="{{ url_for('create_team') }}" enctype="multipart/form-data">
+            <div class="mb-6">
+                <label class="block text-sm font-semibold mb-2">Team Name *</label>
+                <input type="text" 
+                       name="name" 
+                       class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 transition"
+                       placeholder="e.g., Phoenix Warriors"
+                       required>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Team Tag *</label>
+                    <input type="text" 
+                           name="tag" 
+                           class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 transition"
+                           placeholder="e.g., PW"
+                           maxlength="10"
+                           required>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Game *</label>
+                    <select name="game" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 transition" required>
+                        <option value="">Select Game</option>
+                        <option value="Free Fire">Free Fire</option>
+                        <option value="BGMI">BGMI</option>
+                        <option value="Valorant">Valorant</option>
+                        <option value="COD Mobile">COD Mobile</option>
+                        <option value="PUBG PC">PUBG PC</option>
+                        <option value="CS:GO">CS:GO</option>
+                        <option value="Dota 2">Dota 2</option>
+                        <option value="League of Legends">League of Legends</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-semibold mb-2">Description</label>
+                <textarea name="description" 
+                          class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 transition"
+                          placeholder="Tell us about your team"
+                          rows="4"></textarea>
+            </div>
+            
+            <div class="mb-8">
+                <label class="block text-sm font-semibold mb-2">Team Logo</label>
+                <div class="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center cursor-pointer hover:border-purple-500 transition">
+                          <input type="file" 
+                              name="logo" 
+                              id="logo" 
+                              class="sr-only" 
+                              accept="image/*">
+                    <label for="logo" class="cursor-pointer">
+                        <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2 block"></i>
+                        <p class="text-gray-300">Click to upload or drag and drop</p>
+                        <p class="text-xs text-gray-500">PNG, JPG, GIF (Max 2MB)</p>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="flex gap-4">
+                <button type="submit" class="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-3 rounded-lg hover:opacity-90 transition">
+                    <i class="fas fa-users mr-2"></i> Create Team
+                </button>
+                <a href="{{ url_for('teams') }}" class="flex-1 border-2 border-purple-600 text-purple-400 text-center font-bold py-3 rounded-lg hover:bg-purple-600 hover:text-white transition">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

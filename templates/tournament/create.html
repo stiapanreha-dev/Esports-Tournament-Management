@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Create Tournament - KAI Arena{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-4xl font-bold mb-2">Create Tournament</h1>
+    <p class="text-gray-400">Set up a new esports tournament</p>
+</div>
+
+<div class="max-w-2xl">
+    <div class="card p-8">
+        <form method="POST" action="{{ url_for('create_tournament') }}">
+            <div class="mb-6">
+                <label class="block text-sm font-semibold mb-2">Tournament Name *</label>
+                <input type="text" 
+                       name="name" 
+                       class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 transition"
+                       placeholder="e.g., Spring Championship 2024"
+                       required>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Game *</label>
+                    <select name="game" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 transition" required>
+                        <option value="">Select Game</option>
+                        {% for game in games %}
+                            <option value="{{ game }}">{{ game }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Bracket Type *</label>
+                    <select name="bracket_type" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 transition" required>
+                        <option value="single_elimination">Single Elimination</option>
+                        <option value="double_elimination">Double Elimination</option>
+                        <option value="round_robin">Round Robin</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-semibold mb-2">Description</label>
+                <textarea name="description" 
+                          class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 transition"
+                          placeholder="Describe your tournament"
+                          rows="3"></textarea>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-semibold mb-2">Rules</label>
+                <textarea name="rules" 
+                          class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 transition"
+                          placeholder="Tournament rules and guidelines"
+                          rows="4"></textarea>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Start Date & Time *</label>
+                    <input type="datetime-local" 
+                           name="start_date" 
+                           class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 transition"
+                           required>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Registration Deadline *</label>
+                    <input type="datetime-local" 
+                           name="registration_deadline" 
+                           class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 transition"
+                           required>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Max Teams *</label>
+                    <input type="number" 
+                           name="max_teams" 
+                           class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 transition"
+                           value="16"
+                           min="2"
+                           required>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Players per Team *</label>
+                    <input type="number" 
+                           name="max_players" 
+                           class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 transition"
+                           value="1"
+                           min="1"
+                           required>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Entry Fee ($)</label>
+                    <input type="number" 
+                           name="entry_fee" 
+                           class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 transition"
+                           value="0"
+                           min="0"
+                           step="0.01">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Prize Pool ($)</label>
+                    <input type="number" 
+                           name="prize_pool" 
+                           class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 transition"
+                           value="0"
+                           min="0"
+                           step="0.01">
+                </div>
+            </div>
+            
+            <div class="flex gap-4">
+                <button type="submit" class="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-3 rounded-lg hover:opacity-90 transition">
+                    <i class="fas fa-trophy mr-2"></i> Create Tournament
+                </button>
+                <a href="{{ url_for('tournaments') }}" class="flex-1 border-2 border-purple-600 text-purple-400 text-center font-bold py-3 rounded-lg hover:bg-purple-600 hover:text-white transition">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

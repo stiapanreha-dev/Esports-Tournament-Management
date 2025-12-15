@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Home - KAI Arena{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="relative mb-12">
+    <div class="bg-gradient-to-r from-purple-900 via-gray-800 to-gray-900 rounded-xl overflow-hidden">
+        <div class="px-6 md:px-12 py-16 md:py-24">
+            <h1 class="text-4xl md:text-6xl font-bold mb-4 text-white">
+                Competitive Gaming Simplified
+            </h1>
+            <p class="text-xl text-gray-300 mb-8 max-w-2xl">
+                Organize tournaments, manage teams, and compete with players worldwide. The ultimate platform for esports enthusiasts.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4">
+                {% if not session.get('user_id') %}
+                    <a href="{{ url_for('register') }}" class="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:opacity-90 transition">
+                        <i class="fas fa-rocket mr-2"></i> Get Started
+                    </a>
+                    <a href="{{ url_for('tournaments') }}" class="inline-flex items-center justify-center px-8 py-3 border-2 border-purple-600 text-purple-400 font-bold rounded-lg hover:bg-purple-600 hover:text-white transition">
+                        Browse Tournaments
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('tournaments') }}" class="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:opacity-90 transition">
+                        <i class="fas fa-trophy mr-2"></i> View Tournaments
+                    </a>
+                    <a href="{% if session.get('role') == 'organizer' %}{{ url_for('create_tournament') }}{% else %}{{ url_for('create_team') }}{% endif %}" class="inline-flex items-center justify-center px-8 py-3 border-2 border-purple-600 text-purple-400 font-bold rounded-lg hover:bg-purple-600 hover:text-white transition">
+                        <i class="fas fa-plus mr-2"></i> {% if session.get('role') == 'organizer' %}Create Tournament{% else %}Create Team{% endif %}
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Section -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+    <div class="card p-6 text-center">
+        <div class="text-4xl font-bold text-purple-400 mb-2">{{ stats.total_tournaments }}</div>
+        <div class="text-gray-400">Total Tournaments</div>
+    </div>
+    <div class="card p-6 text-center">
+        <div class="text-4xl font-bold text-pink-400 mb-2">{{ stats.active_tournaments }}</div>
+        <div class="text-gray-400">Ongoing Now</div>
+    </div>
+    <div class="card p-6 text-center">
+        <div class="text-4xl font-bold text-blue-400 mb-2">{{ stats.total_teams }}</div>
+        <div class="text-gray-400">Active Teams</div>
+    </div>
+    <div class="card p-6 text-center">
+        <div class="text-4xl font-bold text-green-400 mb-2">{{ stats.total_players }}</div>
+        <div class="text-gray-400">Registered Players</div>
+    </div>
+</div>
+
+<!-- Featured Tournaments -->
+<div class="mb-12">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-3xl font-bold">Featured Tournaments</h2>
+        <a href="{{ url_for('tournaments') }}" class="text-purple-400 hover:text-purple-300 flex items-center">
+            View All <i class="fas fa-arrow-right ml-2"></i>
+        </a>
+    </div>
+    
+    {% if tournaments %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for tournament in tournaments %}
+                <div class="card overflow-hidden hover:scale-105 transition transform">
+                    <div class="bg-gradient-to-r from-purple-600 to-pink-600 h-24 flex items-center justify-center">
+                        <div class="text-center">
+                            <div class="text-2xl"><i class="fas fa-gamepad"></i></div>
+                            <div class="text-sm font-semibold">{{ tournament.game }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 line-clamp-1">{{ tournament.name }}</h3>
+                        
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center text-sm text-gray-400">
+                                <i class="fas fa-calendar w-4"></i>
+                                <span class="ml-2">{{ tournament.start_date.strftime('%d %b %Y') }}</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-400">
+                                <i class="fas fa-users w-4"></i>
+                                <span class="ml-2">{{ tournament.get_registered_count() }}/{{ tournament.max_teams }} Teams</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-400">
+                                <i class="fas fa-trophy w-4"></i>
+                                <span class="ml-2">${{ tournament.prize_pool }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="badge badge-{% if tournament.status == 'upcoming' %}info{% elif tournament.status == 'ongoing' %}success{% else %}warning{% endif %}">
+                                {{ tournament.status.title() }}
+                            </span>
+                            <a href="{{ url_for('tournament_detail', tournament_id=tournament.id) }}" class="text-purple-400 hover:text-purple-300 font-semibold text-sm">
+                                View <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-12">
+            <i class="fas fa-inbox text-6xl text-gray-500 mb-4"></i>
+            <p class="text-gray-400">No tournaments available yet. Check back soon!</p>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Announcements -->
+{% if announcements %}
+    <div class="mb-12">
+        <h2 class="text-3xl font-bold mb-6">Latest Announcements</h2>
+        <div class="space-y-4">
+            {% for announcement in announcements %}
+                <div class="card p-6 border-l-4 {% if announcement.category == 'announcement' %}border-red-500{% elif announcement.category == 'tournament' %}border-yellow-500{% else %}border-blue-500{% endif %}">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <h3 class="text-lg font-bold mb-2">{{ announcement.title }}</h3>
+                            <p class="text-gray-300">{{ announcement.content }}</p>
+                            <div class="flex items-center gap-4 mt-3 text-sm text-gray-400">
+                                <span>{{ announcement.created_at.strftime('%d %b %Y') }}</span>
+                                <span class="badge badge-info">{{ announcement.category.title() }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
+
+<!-- Features Section -->
+<div class="mb-12">
+    <h2 class="text-3xl font-bold mb-8 text-center">Why Choose Us?</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="card p-6 text-center">
+            <div class="text-4xl text-purple-400 mb-4"><i class="fas fa-list-check"></i></div>
+            <h3 class="text-xl font-bold mb-2">Easy Tournament Setup</h3>
+            <p class="text-gray-400">Create and manage tournaments in minutes with our intuitive interface.</p>
+        </div>
+        <div class="card p-6 text-center">
+            <div class="text-4xl text-pink-400 mb-4"><i class="fas fa-users"></i></div>
+            <h3 class="text-xl font-bold mb-2">Team Management</h3>
+            <p class="text-gray-400">Create teams, manage members, and track performance easily.</p>
+        </div>
+        <div class="card p-6 text-center">
+            <div class="text-4xl text-blue-400 mb-4"><i class="fas fa-chart-line"></i></div>
+            <h3 class="text-xl font-bold mb-2">Real-Time Tracking</h3>
+            <p class="text-gray-400">Monitor match progress and view brackets in real-time.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Call to Action -->
+{% if not session.get('user_id') %}
+    <div class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl p-12 text-center mb-8">
+        <h2 class="text-3xl font-bold mb-4">Ready to Compete?</h2>
+        <p class="text-lg mb-6 text-gray-100">Join thousands of gamers and start your competitive journey today.</p>
+        <a href="{{ url_for('register') }}" class="inline-flex items-center px-8 py-3 bg-white text-purple-600 font-bold rounded-lg hover:bg-gray-100 transition">
+            <i class="fas fa-star mr-2"></i> Register Now
+        </a>
+    </div>
+{% endif %}
+
+{% endblock %}
