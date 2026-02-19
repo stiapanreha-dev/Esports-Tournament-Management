@@ -52,7 +52,7 @@
         <div class="card p-6 mb-6">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-2xl font-bold">
-                    <img src="https://cdn-frontend.faceit-cdn.net/web/static/media/faceit-short-white.b43cf8fd.svg" alt="FACEIT" class="inline h-6 mr-2">
+                    <svg class="inline h-6 w-6 mr-2" viewBox="0 0 32 32" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M16 0C7.163 0 0 7.163 0 16s7.163 16 16 16 16-7.163 16-16S24.837 0 16 0zm6.4 11.2h-6.4v3.2h4.8v3.2h-4.8V24h-3.2V8h9.6v3.2z" fill="#FF5500"/></svg>
                     FACEIT
                 </h2>
                 {% if faceit.faceit_url %}
@@ -99,7 +99,7 @@
                 {% if faceit and faceit.faceit_url %}
                 <a href="{{ faceit.faceit_url }}" target="_blank"
                    class="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition">
-                    <img src="https://cdn-frontend.faceit-cdn.net/web/static/media/faceit-short-white.b43cf8fd.svg" alt="FACEIT" class="h-4"> FACEIT Profile
+                    <svg class="h-4 w-4" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 0C7.163 0 0 7.163 0 16s7.163 16 16 16 16-7.163 16-16S24.837 0 16 0zm6.4 11.2h-6.4v3.2h4.8v3.2h-4.8V24h-3.2V8h9.6v3.2z" fill="white"/></svg> FACEIT Profile
                 </a>
                 {% endif %}
             </div>
