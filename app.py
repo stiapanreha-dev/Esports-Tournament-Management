@@ -395,6 +395,39 @@ def get_steam_login_url(return_to):
     }
     return STEAM_OPENID_URL + '?' + urlencode(params)
 
+def get_faceit_by_steam_id(steam_id):
+    api_key = app.config.get('FACEIT_API_KEY', '')
+    if not api_key:
+        return None
+    try:
+        resp = http_requests.get(
+            'https://open.faceit.com/data/v4/players',
+            params={'game': 'cs2', 'game_player_id': steam_id},
+            headers={'Authorization': f'Bearer {api_key}'},
+            timeout=10,
+        )
+        if resp.status_code == 404:
+            # Try csgo as fallback
+            resp = http_requests.get(
+                'https://open.faceit.com/data/v4/players',
+                params={'game': 'csgo', 'game_player_id': steam_id},
+                headers={'Authorization': f'Bearer {api_key}'},
+                timeout=10,
+            )
+        if resp.status_code != 200:
+            return None
+        data = resp.json()
+        game_data = data.get('games', {}).get('cs2') or data.get('games', {}).get('csgo') or {}
+        return {
+            'nickname': data.get('nickname', ''),
+            'elo': game_data.get('faceit_elo', 0),
+            'level': game_data.get('skill_level', 0),
+            'faceit_url': data.get('faceit_url', '').replace('{lang}', 'en'),
+            'avatar': data.get('avatar', ''),
+        }
+    except Exception:
+        return None
+
 def get_steam_profile(steam_id):
     api_key = app.config.get('STEAM_API_KEY', '')
     if not api_key:
@@ -875,8 +908,18 @@ def add_team_member(team_id):
 def profile():
     user = User.query.get(session['user_id'])
     stats = user.get_stats()
-    
-    return render_template('profile/view.html', user=user, stats=stats)
+    faceit = get_faceit_by_steam_id(user.steam_id) if user.steam_id else None
+    teams = [tm.team for tm in TeamMember.query.filter_by(user_id=user.id).all()]
+    return render_template('profile/view.html', user=user, stats=stats, faceit=faceit, teams=teams, is_own=True)
+
+@app.route('/player/<username>')
+def public_profile(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    stats = user.get_stats()
+    faceit = get_faceit_by_steam_id(user.steam_id) if user.steam_id else None
+    teams = [tm.team for tm in TeamMember.query.filter_by(user_id=user.id).all()]
+    is_own = session.get('user_id') == user.id
+    return render_template('profile/view.html', user=user, stats=stats, faceit=faceit, teams=teams, is_own=is_own)
 
 @app.route('/profile/edit', methods=['GET', 'POST'])
 @token_required

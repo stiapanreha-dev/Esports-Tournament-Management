@@ -13,3 +13,4 @@ services:
       - DATABASE_URL=sqlite:////app/instance/tournament.db
       - FLASK_ENV=production
       - STEAM_API_KEY=C6CD0DAB30FB2A5F64CA4678CFD912B3
+      - FACEIT_API_KEY=2a42a646-5999-42b6-9380-e99b7ef032af
