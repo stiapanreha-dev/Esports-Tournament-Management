@@ -1,16 +1,21 @@
 import os
+import re
 import json
 from datetime import datetime, timedelta
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session, send_from_directory, abort
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
+from werkzeug.middleware.proxy_fix import ProxyFix
+from urllib.parse import urlencode
+import requests as http_requests
 import jwt
 from functools import wraps
 from config import Config
 
 app = Flask(__name__)
 app.config.from_object(Config)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
 db = SQLAlchemy(app)
 
@@ -18,8 +23,9 @@ db = SQLAlchemy(app)
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(200), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=True)
+    password = db.Column(db.String(200), nullable=True)
+    steam_id = db.Column(db.String(20), unique=True, nullable=True)
     ign = db.Column(db.String(80))  # In-Game Name
     full_name = db.Column(db.String(100))
     bio = db.Column(db.Text)
@@ -353,7 +359,7 @@ def login():
         
         user = User.query.filter_by(username=username).first()
         
-        if user and check_password_hash(user.password, password):
+        if user and user.password and user.password.startswith(('pbkdf2:', 'scrypt:')) and check_password_hash(user.password, password):
             if not user.is_active:
                 flash('Account is deactivated. Please contact admin.', 'danger')
                 return redirect(url_for('login'))
@@ -374,6 +380,152 @@ def login():
             flash('Invalid username or password', 'danger')
     
     return render_template('auth/login.html')
+
+# Steam OpenID helpers
+STEAM_OPENID_URL = 'https://steamcommunity.com/openid/login'
+
+def get_steam_login_url(return_to):
+    params = {
+        'openid.ns': 'http://specs.openid.net/auth/2.0',
+        'openid.mode': 'checkid_setup',
+        'openid.return_to': return_to,
+        'openid.realm': return_to.rsplit('/', 1)[0] + '/',
+        'openid.identity': 'http://specs.openid.net/auth/2.0/identifier_select',
+        'openid.claimed_id': 'http://specs.openid.net/auth/2.0/identifier_select',
+    }
+    return STEAM_OPENID_URL + '?' + urlencode(params)
+
+FACEIT_GAME_NAMES = {
+    'cs2': 'CS2', 'csgo': 'CS:GO', 'dota2': 'Dota 2',
+    'lol': 'LoL', 'valorant': 'Valorant', 'pubg': 'PUBG',
+    'rl': 'Rocket League', 'tf2': 'TF2',
+}
+
+def get_faceit_by_steam_id(steam_id):
+    api_key = app.config.get('FACEIT_API_KEY', '')
+    if not api_key:
+        return None
+    try:
+        resp = http_requests.get(
+            'https://open.faceit.com/data/v4/players',
+            params={'game': 'csgo', 'game_player_id': steam_id},
+            headers={'Authorization': f'Bearer {api_key}'},
+            timeout=10,
+        )
+        if resp.status_code != 200:
+            return None
+        data = resp.json()
+        games = []
+        for key, gd in data.get('games', {}).items():
+            elo = gd.get('faceit_elo', 0)
+            if elo > 0:
+                games.append({
+                    'key': key,
+                    'name': FACEIT_GAME_NAMES.get(key, key),
+                    'elo': elo,
+                    'level': gd.get('skill_level', 0),
+                })
+        games.sort(key=lambda g: g['elo'], reverse=True)
+        return {
+            'nickname': data.get('nickname', ''),
+            'faceit_url': data.get('faceit_url', '').replace('{lang}', 'en'),
+            'avatar': data.get('avatar', ''),
+            'games': games,
+        }
+    except Exception:
+        return None
+
+def get_steam_profile(steam_id):
+    api_key = app.config.get('STEAM_API_KEY', '')
+    if not api_key:
+        return None
+    resp = http_requests.get(
+        'https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/',
+        params={'key': api_key, 'steamids': steam_id},
+        timeout=10,
+    )
+    data = resp.json()
+    players = data.get('response', {}).get('players', [])
+    return players[0] if players else None
+
+@app.route('/auth/steam')
+def steam_login():
+    return_to = url_for('steam_callback', _external=True)
+    return redirect(get_steam_login_url(return_to))
+
+@app.route('/auth/steam/callback')
+def steam_callback():
+    # Verify the OpenID response
+    params = {
+        'openid.assoc_handle': request.args.get('openid.assoc_handle', ''),
+        'openid.signed': request.args.get('openid.signed', ''),
+        'openid.sig': request.args.get('openid.sig', ''),
+        'openid.ns': request.args.get('openid.ns', ''),
+        'openid.mode': 'check_authentication',
+    }
+    signed_fields = request.args.get('openid.signed', '').split(',')
+    for field in signed_fields:
+        key = 'openid.' + field
+        params[key] = request.args.get(key, '')
+
+    resp = http_requests.post(STEAM_OPENID_URL, data=params, timeout=10)
+    if 'is_valid:true' not in resp.text:
+        flash('Steam authentication failed.', 'danger')
+        return redirect(url_for('login'))
+
+    # Extract Steam ID from claimed_id
+    claimed_id = request.args.get('openid.claimed_id', '')
+    m = re.search(r'/id/(\d+)$', claimed_id) or re.search(r'/openid/id/(\d+)$', claimed_id)
+    if not m:
+        flash('Could not determine Steam ID.', 'danger')
+        return redirect(url_for('login'))
+
+    steam_id = m.group(1)
+
+    # Find or create user
+    user = User.query.filter_by(steam_id=steam_id).first()
+    if not user:
+        profile = get_steam_profile(steam_id)
+        persona = profile.get('personaname', f'steam_{steam_id}') if profile else f'steam_{steam_id}'
+        avatar_url = profile.get('avatarfull', '') if profile else ''
+
+        # Ensure unique username
+        base_name = persona
+        counter = 1
+        while User.query.filter_by(username=persona).first():
+            persona = f'{base_name}_{counter}'
+            counter += 1
+
+        user = User(
+            username=persona,
+            email=f'{steam_id}@steam.local',
+            password='!steam-auth',
+            steam_id=steam_id,
+            ign=base_name,
+            avatar=avatar_url or None,
+            role='player',
+            is_active=True,
+        )
+        db.session.add(user)
+        db.session.commit()
+    else:
+        # Refresh avatar on each login
+        profile = get_steam_profile(steam_id)
+        if profile:
+            avatar_url = profile.get('avatarfull', '')
+            if avatar_url:
+                user.avatar = avatar_url
+
+    user.last_login = datetime.utcnow()
+    db.session.commit()
+
+    session['user_id'] = user.id
+    session['username'] = user.username
+    session['role'] = user.role
+    session['ign'] = user.ign
+
+    flash('Logged in via Steam!', 'success')
+    return redirect(url_for('dashboard'))
 
 @app.route('/logout')
 def logout():
@@ -763,8 +915,18 @@ def add_team_member(team_id):
 def profile():
     user = User.query.get(session['user_id'])
     stats = user.get_stats()
-    
-    return render_template('profile/view.html', user=user, stats=stats)
+    faceit = get_faceit_by_steam_id(user.steam_id) if user.steam_id else None
+    teams = [tm.team for tm in TeamMember.query.filter_by(user_id=user.id).all()]
+    return render_template('profile/view.html', user=user, stats=stats, faceit=faceit, teams=teams, is_own=True)
+
+@app.route('/player/<username>')
+def public_profile(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    stats = user.get_stats()
+    faceit = get_faceit_by_steam_id(user.steam_id) if user.steam_id else None
+    teams = [tm.team for tm in TeamMember.query.filter_by(user_id=user.id).all()]
+    is_own = session.get('user_id') == user.id
+    return render_template('profile/view.html', user=user, stats=stats, faceit=faceit, teams=teams, is_own=is_own)
 
 @app.route('/profile/edit', methods=['GET', 'POST'])
 @token_required
