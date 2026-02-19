@@ -31,5 +31,5 @@ services:
       - SECRET_KEY=esports-prod-secret-key-changeme
       - DATABASE_URL=mysql+pymysql://esports:esports-db-secret@esports-mysql/esports
       - FLASK_ENV=production
-      - STEAM_API_KEY=C6CD0DAB30FB2A5F64CA4678CFD912B3
-      - FACEIT_API_KEY=2a42a646-5999-42b6-9380-e99b7ef032af
+      - STEAM_API_KEY=5108E372D2B52E71A57F655B92BF3855
+      - FACEIT_API_KEY=7a800c7f-b9a7-41be-bcfb-339d8675ebfe
