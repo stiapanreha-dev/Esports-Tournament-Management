@@ -359,7 +359,7 @@ def login():
         
         user = User.query.filter_by(username=username).first()
         
-        if user and user.password and check_password_hash(user.password, password):
+        if user and user.password and user.password.startswith(('pbkdf2:', 'scrypt:')) and check_password_hash(user.password, password):
             if not user.is_active:
                 flash('Account is deactivated. Please contact admin.', 'danger')
                 return redirect(url_for('login'))
@@ -459,6 +459,7 @@ def steam_callback():
         user = User(
             username=persona,
             email=f'{steam_id}@steam.local',
+            password='!steam-auth',
             steam_id=steam_id,
             ign=base_name,
             avatar=avatar_url or None,
