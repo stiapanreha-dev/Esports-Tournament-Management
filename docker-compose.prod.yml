@@ -1,0 +1,14 @@
+services:
+  esports-app:
+    build: .
+    container_name: esports-app
+    restart: unless-stopped
+    ports:
+      - "5050:5000"
+    volumes:
+      - ./data:/app/instance
+      - ./uploads:/app/static/uploads
+    environment:
+      - SECRET_KEY=esports-prod-secret-key-changeme
+      - DATABASE_URL=sqlite:///instance/tournament.db
+      - FLASK_ENV=production
