@@ -10,5 +10,5 @@ services:
       - ./uploads:/app/static/uploads
     environment:
       - SECRET_KEY=esports-prod-secret-key-changeme
-      - DATABASE_URL=sqlite:///instance/tournament.db
+      - DATABASE_URL=sqlite:////app/instance/tournament.db
       - FLASK_ENV=production
