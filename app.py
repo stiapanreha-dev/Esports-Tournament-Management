@@ -458,6 +458,7 @@ def steam_callback():
 
         user = User(
             username=persona,
+            email=f'{steam_id}@steam.local',
             steam_id=steam_id,
             ign=base_name,
             avatar=avatar_url or None,
