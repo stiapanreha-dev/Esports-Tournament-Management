@@ -10,6 +10,9 @@ class Config:
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'jwt-secret-key-change-in-production'
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
     
+    # Steam
+    STEAM_API_KEY = os.environ.get('STEAM_API_KEY', '')
+
     # Game options
     GAMES = ['Free Fire', 'BGMI', 'Valorant', 'COD Mobile', 'PUBG PC', 'CS:GO', 'Dota 2', 'League of Legends']
     

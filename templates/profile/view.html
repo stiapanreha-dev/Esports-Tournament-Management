@@ -76,7 +76,11 @@
     <div>
         {% if user.avatar %}
             <div class="card p-6 mb-6">
-                <img src="{{ url_for('uploaded_file', filename=user.avatar) }}" alt="{{ user.username }}" class="w-full h-auto rounded-lg">
+                {% if user.avatar.startswith('http') %}
+                    <img src="{{ user.avatar }}" alt="{{ user.username }}" class="w-full h-auto rounded-lg">
+                {% else %}
+                    <img src="{{ url_for('uploaded_file', filename=user.avatar) }}" alt="{{ user.username }}" class="w-full h-auto rounded-lg">
+                {% endif %}
             </div>
         {% else %}
             <div class="card p-6 mb-6">
