@@ -395,6 +395,12 @@ def get_steam_login_url(return_to):
     }
     return STEAM_OPENID_URL + '?' + urlencode(params)
 
+FACEIT_GAME_NAMES = {
+    'cs2': 'CS2', 'csgo': 'CS:GO', 'dota2': 'Dota 2',
+    'lol': 'LoL', 'valorant': 'Valorant', 'pubg': 'PUBG',
+    'rl': 'Rocket League', 'tf2': 'TF2',
+}
+
 def get_faceit_by_steam_id(steam_id):
     api_key = app.config.get('FACEIT_API_KEY', '')
     if not api_key:
@@ -402,28 +408,29 @@ def get_faceit_by_steam_id(steam_id):
     try:
         resp = http_requests.get(
             'https://open.faceit.com/data/v4/players',
-            params={'game': 'cs2', 'game_player_id': steam_id},
+            params={'game': 'csgo', 'game_player_id': steam_id},
             headers={'Authorization': f'Bearer {api_key}'},
             timeout=10,
         )
-        if resp.status_code == 404:
-            # Try csgo as fallback
-            resp = http_requests.get(
-                'https://open.faceit.com/data/v4/players',
-                params={'game': 'csgo', 'game_player_id': steam_id},
-                headers={'Authorization': f'Bearer {api_key}'},
-                timeout=10,
-            )
         if resp.status_code != 200:
             return None
         data = resp.json()
-        game_data = data.get('games', {}).get('cs2') or data.get('games', {}).get('csgo') or {}
+        games = []
+        for key, gd in data.get('games', {}).items():
+            elo = gd.get('faceit_elo', 0)
+            if elo > 0:
+                games.append({
+                    'key': key,
+                    'name': FACEIT_GAME_NAMES.get(key, key),
+                    'elo': elo,
+                    'level': gd.get('skill_level', 0),
+                })
+        games.sort(key=lambda g: g['elo'], reverse=True)
         return {
             'nickname': data.get('nickname', ''),
-            'elo': game_data.get('faceit_elo', 0),
-            'level': game_data.get('skill_level', 0),
             'faceit_url': data.get('faceit_url', '').replace('{lang}', 'en'),
             'avatar': data.get('avatar', ''),
+            'games': games,
         }
     except Exception:
         return None

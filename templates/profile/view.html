@@ -50,40 +50,40 @@
         <!-- FACEIT -->
         {% if faceit %}
         <div class="card p-6 mb-6">
-            <h2 class="text-2xl font-bold mb-4">
-                <img src="https://cdn-frontend.faceit-cdn.net/web/static/media/faceit-short-white.b43cf8fd.svg" alt="FACEIT" class="inline h-6 mr-2">
-                FACEIT
-            </h2>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <!-- Nickname -->
-                <div class="bg-gray-700 rounded-lg p-4 text-center">
-                    <div class="text-gray-400 text-xs uppercase mb-1">Nickname</div>
-                    {% if faceit.faceit_url %}
-                        <a href="{{ faceit.faceit_url }}" target="_blank" class="text-lg font-bold text-orange-400 hover:text-orange-300">
-                            {{ faceit.nickname }}
-                        </a>
-                    {% else %}
-                        <div class="text-lg font-bold text-orange-400">{{ faceit.nickname }}</div>
-                    {% endif %}
-                </div>
-                <!-- ELO -->
-                <div class="bg-gray-700 rounded-lg p-4 text-center">
-                    <div class="text-gray-400 text-xs uppercase mb-1">ELO</div>
-                    <div class="text-2xl font-bold text-white">{{ faceit.elo }}</div>
-                </div>
-                <!-- Level -->
-                <div class="bg-gray-700 rounded-lg p-4 text-center">
-                    <div class="text-gray-400 text-xs uppercase mb-1">Level</div>
-                    <div class="flex items-center justify-center gap-2">
-                        <img src="https://cdn-frontend.faceit-cdn.net/web/static/media/assets_images_skill-icons_skill_level_{{ faceit.level }}_svg.svg"
-                             alt="Level {{ faceit.level }}"
-                             class="h-8 w-8"
-                             onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-                        <span class="text-2xl font-bold text-orange-400" style="display:none">{{ faceit.level }}</span>
-                        <span class="text-2xl font-bold text-orange-400">{{ faceit.level }}</span>
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-2xl font-bold">
+                    <img src="https://cdn-frontend.faceit-cdn.net/web/static/media/faceit-short-white.b43cf8fd.svg" alt="FACEIT" class="inline h-6 mr-2">
+                    FACEIT
+                </h2>
+                {% if faceit.faceit_url %}
+                    <a href="{{ faceit.faceit_url }}" target="_blank" class="text-orange-400 hover:text-orange-300 font-bold">
+                        {{ faceit.nickname }} <i class="fas fa-external-link-alt text-xs ml-1"></i>
+                    </a>
+                {% endif %}
+            </div>
+
+            {% for game in faceit.games %}
+            <div class="{% if not loop.first %}mt-3{% endif %} bg-gray-700 rounded-lg p-4">
+                <div class="flex items-center justify-between flex-wrap gap-3">
+                    <div class="text-lg font-bold text-white">{{ game.name }}</div>
+                    <div class="flex items-center gap-6">
+                        <div class="text-center">
+                            <div class="text-gray-400 text-xs uppercase">ELO</div>
+                            <div class="text-xl font-bold text-white">{{ game.elo }}</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-gray-400 text-xs uppercase">Level</div>
+                            <div class="flex items-center gap-1">
+                                <img src="https://cdn-frontend.faceit-cdn.net/web/static/media/assets_images_skill-icons_skill_level_{{ game.level }}_svg.svg"
+                                     alt="Level {{ game.level }}" class="h-8 w-8"
+                                     onerror="this.style.display='none'">
+                                <span class="text-xl font-bold text-orange-400">{{ game.level }}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
         {% endif %}
 
