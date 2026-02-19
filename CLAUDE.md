@@ -6,7 +6,7 @@
 - **Branch:** main
 - **PROD:** 202.49.176.75, path `/root/apps/esports`, `http://202.49.176.75`
 - **Containers:** esports-app (port 5050→5000), esports-mysql (3306)
-- **SSH:** `sshpass -p 'eMlcI0yK17U3tR6' ssh root@202.49.176.75`
+- **SSH:** `ssh SRV010` (ключ `~/.ssh/SRV010`)
 
 ## Deploy
 ```bash
@@ -15,8 +15,7 @@ cd /home/lexun/work/KWORK/esports-deploy
 git add <files> && git commit -m "..." && git push origin main
 
 # PROD: pull + rebuild
-sshpass -p 'eMlcI0yK17U3tR6' ssh root@202.49.176.75 \
-  "cd /root/apps/esports && git pull && docker compose -f docker-compose.prod.yml down && docker compose -f docker-compose.prod.yml up -d --build"
+ssh SRV010 "cd /root/apps/esports && git pull && docker compose -f docker-compose.prod.yml down && docker compose -f docker-compose.prod.yml up -d --build"
 ```
 
 ## DB Migrations (MySQL)
