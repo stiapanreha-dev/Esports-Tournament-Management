@@ -747,6 +747,15 @@ def register_tournament(tournament_id):
     db.session.commit()
     return redirect(url_for('tournament_detail', tournament_id=tournament_id))
 
+@app.route('/tournament/<int:tournament_id>/delete', methods=['POST'])
+@role_required(['organizer'])
+def delete_tournament(tournament_id):
+    tournament = Tournament.query.get_or_404(tournament_id)
+    db.session.delete(tournament)
+    db.session.commit()
+    flash('Tournament deleted successfully.', 'success')
+    return redirect(url_for('tournaments'))
+
 @app.route('/tournament/<int:tournament_id>/bracket')
 def tournament_bracket(tournament_id):
     tournament = Tournament.query.get_or_404(tournament_id)
