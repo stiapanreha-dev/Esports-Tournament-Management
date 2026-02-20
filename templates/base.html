@@ -125,8 +125,8 @@
                     {% endif %}
                 </div>
                 
-                <!-- User Menu / Auth Buttons -->
-                <div class="flex items-center space-x-4">
+                <!-- User Menu / Auth Buttons (desktop only) -->
+                <div class="hidden md:flex items-center space-x-4">
                     {% if session.get('user_id') %}
                         <div class="dropdown relative">
                             <button class="dropdown-toggle flex items-center space-x-2 focus:outline-none">
