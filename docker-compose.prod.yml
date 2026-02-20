@@ -27,9 +27,13 @@ services:
       - "5050:5000"
     volumes:
       - ./uploads:/app/static/uploads
+      - ./app.py:/app/app.py
+      - ./config.py:/app/config.py
+      - ./templates:/app/templates
+      - ./static:/app/static
     environment:
       - SECRET_KEY=esports-prod-secret-key-changeme
       - DATABASE_URL=mysql+pymysql://esports:esports-db-secret@esports-mysql/esports
-      - FLASK_ENV=production
+      - FLASK_DEBUG=1
       - STEAM_API_KEY=5108E372D2B52E71A57F655B92BF3855
       - FACEIT_API_KEY=7a800c7f-b9a7-41be-bcfb-339d8675ebfe
